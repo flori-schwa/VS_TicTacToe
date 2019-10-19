@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 
 namespace TicTacToe.Core.Packet {
     public class PacketDataReader {
@@ -10,6 +11,7 @@ namespace TicTacToe.Core.Packet {
 
         public BinaryReader Reader => _reader;
 
+        public bool ReadBool() => _reader.ReadBoolean();
         public byte ReadByte() => _reader.ReadByte();
 
         public short ReadShort() => _reader.ReadInt16();
@@ -18,7 +20,7 @@ namespace TicTacToe.Core.Packet {
 
         public long ReadLong() => _reader.ReadInt64();
 
-        public string ReadString() => _reader.ReadString();
+        public string ReadString() => Encoding.UTF8.GetString(ReadByteArray(ReadInt()));
 
         public byte[] ReadByteArray(int count) => _reader.ReadBytes(count);
 

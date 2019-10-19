@@ -1,5 +1,5 @@
 namespace TicTacToe.Core.Packet.Serverbound {
-    [Packet(Direction.Serverbound, Protocol.Play)]
+    [Packet(Direction.Serverbound)]
     public class PacketC2SDoTurn : IPacket {
         private int _field;
 

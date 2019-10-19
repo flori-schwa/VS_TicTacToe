@@ -83,10 +83,6 @@ namespace TicTacToe.Server {
             throw new Exception($"Game is full!");
         }
 
-        private bool IsPlayerTypeTaken(PlayerType type) {
-            return _players[0]?.PlayerType == type || _players[1]?.PlayerType == type;
-        }
-
         public void DoTurn(Player player, PacketC2SDoTurn doTurnPacket) {
             if (_currentTurn != player) {
                 return; // Ignore
@@ -106,6 +102,34 @@ namespace TicTacToe.Server {
             }
         }
 
+        private bool IsPlayerTypeTaken(PlayerType type) {
+            return _players[0]?.PlayerType == type || _players[1]?.PlayerType == type;
+        }
+
+        public Player RegisterPlayer(ClientConnection connection, string name) {
+            for (int i = 0; i < 2; i++) {
+                if (_players[i] != null) {
+                    continue;
+                }
+
+                Player player = new Player(connection, name, this);
+                player.Connection.SendPacket(new PacketS2CJoinGame(player.PlayerType));
+                _players[i] = player;
+
+                if (IsGameFull()) {
+                    StartGame();
+                }
+                    
+                return player;
+            }
+            
+            throw new Exception("Game already full!");
+        }
+
+        private void StartGame() {
+            AssignTurn(_players[0]);
+        }
+
         private PlayerType GetReverseType(PlayerType playerType) {
             switch (playerType) {
                 case PlayerType.X:
@@ -115,6 +139,18 @@ namespace TicTacToe.Server {
                 default:
                     throw new ArgumentException();
             }
+        }
+
+        private Player GetOtherPlayer(Player player) {
+            if (_players[0] == player) {
+                return _players[1];
+            }
+
+            if (_players[1] == player) {
+                return _players[0];
+            }
+            
+            throw new ArgumentException($"Player {player.Name} is not part of this game!");
         }
 
         private Player GetPlayerByType(PlayerType type) {
@@ -146,6 +182,10 @@ namespace TicTacToe.Server {
             return false;
         }
 
-        private void Win(Player player) { }
+        private void Win(Player player) {
+            player.Connection.SendPacket(new PacketS2CGameOver(true));
+            
+            GetOtherPlayer(player).Connection.SendPacket(new PacketS2CGameOver(false));
+        }
     }
 }

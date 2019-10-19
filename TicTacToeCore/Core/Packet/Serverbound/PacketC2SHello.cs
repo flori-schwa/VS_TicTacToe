@@ -1,5 +1,5 @@
 namespace TicTacToe.Core.Packet.Serverbound {
-    [Packet(Direction.Serverbound, Protocol.Handshake)]
+    [Packet(Direction.Serverbound)]
     public class PacketC2SHello : IPacket {
         private string _playerName;
 

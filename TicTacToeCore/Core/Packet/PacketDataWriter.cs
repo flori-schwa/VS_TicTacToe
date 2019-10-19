@@ -9,15 +9,21 @@ namespace TicTacToe.Core.Packet {
             _writer = writer;
         }
 
+        public int Write(bool b) {
+            _writer.Write(b);
+
+            return sizeof(bool);
+        }
+
         public int Write(byte b) {
             _writer.Write(b);
-                    
+
             return sizeof(byte);
         }
 
         public int Write(short s) {
             _writer.Write(s);
-                    
+
             return sizeof(short);
         }
 
@@ -39,7 +45,11 @@ namespace TicTacToe.Core.Packet {
             return bytes.Length;
         }
 
-        public int Write(string s) => Write(Encoding.UTF8.GetBytes(s));
+        public int Write(string s) {
+            byte[] stringData = Encoding.UTF8.GetBytes(s);
+
+            return Write(stringData.Length) + Write(stringData);
+        }
 
         public int Write<T>(T t) where T : IPacket => t.Write(this);
 

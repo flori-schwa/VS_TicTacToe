@@ -1,7 +1,7 @@
 using TicTacToe.Core.Game;
 
 namespace TicTacToe.Core.Packet.Clientbound {
-    [Packet(Direction.Clientbound, Protocol.Handshake)]
+    [Packet(Direction.Clientbound)]
     public class PacketS2CJoinGame : IPacket {
         private PlayerType _type;
 

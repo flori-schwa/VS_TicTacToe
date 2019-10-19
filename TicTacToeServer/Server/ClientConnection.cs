@@ -9,7 +9,6 @@ namespace TicTacToe.Server {
     public class ClientConnection {
         private readonly Socket _socket;
         private readonly Game _game;
-        private Protocol _currentProtocol = Protocol.Handshake;
         private Player _player;
 
         public ClientConnection(Socket socket, Game game) {
@@ -17,15 +16,13 @@ namespace TicTacToe.Server {
             _game = game;
         }
 
-        public Protocol CurrentProtocol => _currentProtocol;
-
         public void SendPacket(IPacket packet) {
             new Thread(() => _socket.SendPacket(packet)).Start();
         }
 
         private IPacket ReceivePacket() => _socket.ReceivePacket(Direction.Serverbound);
 
-        internal void Start() {
+        internal void HandleClient() {
             while (_socket.Connected) {
                 IPacket packet = ReceivePacket();
                     
@@ -33,32 +30,26 @@ namespace TicTacToe.Server {
             }
         }
 
-        internal void HandlePacket(IPacket packet) {
-            switch (_currentProtocol) {
-                case Protocol.Handshake:
-                    HandleHandshakePacket(packet);
+        private void HandlePacket(IPacket packet) {
+            switch (packet) {
+                case PacketC2SHello helloPacket: {
+                    HandleHelloPacket(helloPacket);
                     break;
-                case Protocol.Play:
-                    HandlePlayPacket(packet);
+                }
+
+                case PacketC2SDoTurn doTurnPacket: {
+                    HandleDoTurnPacket(doTurnPacket);
                     break;
+                }
             }
         }
 
-        internal void HandleHandshakePacket(IPacket packet) {
-
-            if (packet is PacketC2SHello hello) {
-                // TODO Register player to game
-                _player = new Player(this, hello.PlayerName, _game);
-                SendPacket(new PacketS2CJoinGame(_player.PlayerType));
-                    
-                    
-                return;
-            }
-                
+        private void HandleHelloPacket(PacketC2SHello helloPacket) {
+            _player = _game.RegisterPlayer(this, helloPacket.PlayerName);
         }
 
-        internal void HandlePlayPacket(IPacket packet) {
-                
+        private void HandleDoTurnPacket(PacketC2SDoTurn doTurnPacket) {
+            _game.DoTurn(_player, doTurnPacket);
         }
     }
 }

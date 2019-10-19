@@ -6,7 +6,7 @@ using TicTacToe.Core.Game;
 
 namespace TicTacToe.Server {
     public class TicTacToeServer {
-        private Game _currentGame = new Game();
+        private Game _game = new Game();
 
         internal TicTacToeServer() {
             IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Loopback, 1337);
@@ -44,12 +44,12 @@ namespace TicTacToe.Server {
                 }
 
                 new Thread(() => {
-                    if (_currentGame.IsGameFull()) {
+                    if (_game.IsGameFull()) {
                         clientSocket.Close();
                         return;
                     }
 
-                    new ClientConnection(clientSocket, _currentGame).Start();
+                    new ClientConnection(clientSocket, _game).HandleClient();
                 }).Start();
             }
         }

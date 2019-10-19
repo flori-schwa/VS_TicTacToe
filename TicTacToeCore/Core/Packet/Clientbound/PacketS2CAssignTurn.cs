@@ -1,5 +1,5 @@
 namespace TicTacToe.Core.Packet.Clientbound {
-    [Packet(Direction.Clientbound, Protocol.Play)]
+    [Packet(Direction.Clientbound)]
     public class PacketS2CAssignTurn : IPacket {
                     
         private int[] _availableFields;

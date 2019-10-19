@@ -1,7 +1,10 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using TicTacToe.Core;
+using TicTacToe.Core.Packet;
+using TicTacToe.Core.Packet.Clientbound;
 using TicTacToe.Core.Packet.Serverbound;
 
 namespace TicTacToe.Client {
@@ -24,6 +27,53 @@ namespace TicTacToe.Client {
 
             // Initialize with Hello Packet
             _clientSocket.SendPacket(new PacketC2SHello(username));
+
+            new Thread(() => {
+                while (true) {
+                    IPacket packet = _clientSocket.ReceivePacket(Direction.Clientbound);
+                    
+                    new Thread(() => HandlePacket(packet)).Start();
+                }
+                
+            }).Start();
+
+            while (true) {
+                try {
+                    int field = int.Parse(Console.ReadLine());
+                    
+                    _clientSocket.SendPacket(new PacketC2SDoTurn(field));
+                }
+                catch (Exception e) {
+                    continue;
+                }
+            }
+            
+            // TODO Literally everything else
+        }
+
+        private void HandlePacket(IPacket packet) {
+            switch (packet) {
+                case PacketS2CJoinGame joinGamePacket: {
+                    Console.WriteLine($"You are playing as {joinGamePacket.Type}");
+                    break;
+                }
+
+                case PacketS2CAssignTurn assignTurnPacket: {
+                    Console.WriteLine($"Its your turn! Available fields: {assignTurnPacket.AvailableFields.CollectionToString()}");
+                    break;
+                }
+
+                case PacketS2CGameOver gameOverPacket: {
+                    if (gameOverPacket.WonGame) {
+                        Console.WriteLine("You won the game!");
+                    }
+                    else {
+                        Console.WriteLine("You lost the game!");
+                    }
+                    
+                    break;
+                }
+            }
         }
     }
 }
