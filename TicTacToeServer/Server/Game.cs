@@ -76,7 +76,7 @@ namespace TicTacToe.Server {
         }
 
         private void BroadcastBoard() {
-            PacketS2CBoardUpdate updatePacket = new PacketS2CBoardUpdate(_board.BoardArray);
+            PacketS2CBoardUpdate updatePacket = new PacketS2CBoardUpdate(_board);
             
             _players[0].Connection.SendPacket(updatePacket);
             _players[1].Connection.SendPacket(updatePacket);

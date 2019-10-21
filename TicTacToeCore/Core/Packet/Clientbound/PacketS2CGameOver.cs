@@ -1,6 +1,5 @@
 namespace TicTacToe.Core.Packet.Clientbound {
-    [Packet(Direction.Clientbound)]
-    public class PacketS2CGameOver : IPacket {
+    public class PacketS2CGameOver : BasePacket {
         private bool _wonGame;
 
         public PacketS2CGameOver(bool wonGame) {
@@ -14,8 +13,12 @@ namespace TicTacToe.Core.Packet.Clientbound {
             set => _wonGame = value;
         }
 
-        public void Read(PacketDataReader reader) => _wonGame = reader.ReadBool();
+        public override int PacketId => 0x02;
+        
+        public override Direction Direction => Direction.Clientbound;
+        
+        public override void Read(PacketDataReader reader) => _wonGame = reader.ReadBool();
 
-        public int Write(PacketDataWriter writer) => writer.Write(_wonGame);
+        public override int Write(PacketDataWriter writer) => writer.Write(_wonGame);
     }
 }

@@ -1,6 +1,5 @@
 namespace TicTacToe.Core.Packet.Serverbound {
-    [Packet(Direction.Serverbound)]
-    public class PacketC2SDoTurn : IPacket {
+    public class PacketC2SDoTurn : BasePacket {
         private int _field;
 
         public PacketC2SDoTurn(int field) {
@@ -16,8 +15,12 @@ namespace TicTacToe.Core.Packet.Serverbound {
             set => _field = value;
         }
 
-        public void Read(PacketDataReader reader) => _field = reader.ReadInt();
+        public override int PacketId => 0x01;
+        
+        public override Direction Direction => Direction.Serverbound;
+        
+        public override void Read(PacketDataReader reader) => _field = reader.ReadInt();
 
-        public int Write(PacketDataWriter writer) => writer.Write(_field);
+        public override int Write(PacketDataWriter writer) => writer.Write(_field);
     }
 }

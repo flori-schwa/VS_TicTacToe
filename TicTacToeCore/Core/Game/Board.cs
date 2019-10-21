@@ -25,7 +25,5 @@ namespace TicTacToe.Core.Game {
         }
 
         public int Length => _board.Length;
-
-        public PlayerType[] BoardArray => _board;
     }
 }

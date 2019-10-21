@@ -1,12 +1,11 @@
 using TicTacToe.Core.Game;
 
 namespace TicTacToe.Core.Packet.Clientbound {
-    [Packet(Direction.Clientbound)]
-    public class PacketS2CBoardUpdate : IPacket {
+    public class PacketS2CBoardUpdate : BasePacket {
 
-        private PlayerType[] _board;
+        private Board _board;
 
-        public PacketS2CBoardUpdate(PlayerType[] board) {
+        public PacketS2CBoardUpdate(Board board) {
             _board = board;
         }
 
@@ -14,20 +13,24 @@ namespace TicTacToe.Core.Packet.Clientbound {
             
         }
 
-        public PlayerType[] Board {
+        public Board Board {
             get => _board;
             set => _board = value;
         }
 
-        public void Read(PacketDataReader reader) {
-            _board = new PlayerType[9];
+        public override int PacketId => 0x01;
+        
+        public override Direction Direction => Direction.Clientbound;
+
+        public override void Read(PacketDataReader reader) {
+            _board = new Board();
 
             for (int i = 0; i < 9; i++) {
                 _board[i] = (PlayerType) reader.ReadByte();
             }
         }
 
-        public int Write(PacketDataWriter writer) {
+        public override int Write(PacketDataWriter writer) {
             int writtenBytes = 0;
 
             for (int i = 0; i < 9; i++) {

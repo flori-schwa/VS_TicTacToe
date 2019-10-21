@@ -1,8 +1,7 @@
 using TicTacToe.Core.Game;
 
 namespace TicTacToe.Core.Packet.Clientbound {
-    [Packet(Direction.Clientbound)]
-    public class PacketS2CJoinGame : IPacket {
+    public class PacketS2CJoinGame : BasePacket {
         private PlayerType _type;
 
         public PacketS2CJoinGame() { }
@@ -16,8 +15,12 @@ namespace TicTacToe.Core.Packet.Clientbound {
             set => _type = value;
         }
 
-        public void Read(PacketDataReader reader) => _type = (PlayerType) reader.ReadByte();
+        public override int PacketId => 0x03;
+        
+        public override Direction Direction => Direction.Clientbound;
+        
+        public override void Read(PacketDataReader reader) => _type = (PlayerType) reader.ReadByte();
 
-        public int Write(PacketDataWriter writer) => writer.Write((byte) _type);
+        public override int Write(PacketDataWriter writer) => writer.Write((byte) _type);
     }
 }

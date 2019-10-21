@@ -1,6 +1,5 @@
 namespace TicTacToe.Core.Packet.Serverbound {
-    [Packet(Direction.Serverbound)]
-    public class PacketC2SHello : IPacket {
+    public class PacketC2SHello : BasePacket {
         private string _playerName;
 
         public string PlayerName {
@@ -14,8 +13,12 @@ namespace TicTacToe.Core.Packet.Serverbound {
             _playerName = playerName;
         }
 
-        public void Read(PacketDataReader reader) => _playerName = reader.ReadString();
+        public override int PacketId => 0x00;
+        
+        public override Direction Direction => Direction.Serverbound;
+        
+        public override void Read(PacketDataReader reader) => _playerName = reader.ReadString();
 
-        public int Write(PacketDataWriter writer) => writer.Write(_playerName);
+        public override int Write(PacketDataWriter writer) => writer.Write(_playerName);
     }
 }

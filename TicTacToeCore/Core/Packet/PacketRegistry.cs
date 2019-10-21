@@ -7,44 +7,45 @@ using TicTacToe.Core.Packet.Serverbound;
 
 namespace TicTacToe.Core.Packet {
     public static class PacketRegistry {
-        private static readonly IDictionary<Direction, IDictionary<Type, int>> TypeToId =
-            new ReadOnlyDictionary<Direction, IDictionary<Type, int>>(new Dictionary<Direction, IDictionary<Type, int>> {
-                    {
-                        Direction.Clientbound, new Dictionary<Type, int> {
-                            {typeof(PacketS2CJoinGame), 0x00},
-                            {typeof(PacketS2CAssignTurn), 0x01},
-                            {typeof(PacketS2CGameOver), 0x02},
-                            {typeof(PacketS2CBoardUpdate), 0x03}
-                        }
-                    },
+        static PacketRegistry() {
+            IDictionary<int, Type> idToTypeClientbound = new Dictionary<int, Type>();
+            IDictionary<int, Type> idToTypeServerbound = new Dictionary<int, Type>();
 
-                    {
-                        Direction.Serverbound, new Dictionary<Type, int> {
-                            {typeof(PacketC2SHello), 0x00},
-                            {typeof(PacketC2SDoTurn), 0x01}
-                        }
+            void Register(BasePacket packet) {
+                switch (packet.Direction) {
+                    case Direction.Clientbound: {
+                        idToTypeClientbound[packet.PacketId] = packet.GetType();
+                        break;
+                    }
+
+                    case Direction.Serverbound: {
+                        idToTypeServerbound[packet.PacketId] = packet.GetType();
+                        break;
                     }
                 }
-            );
-        private static readonly IDictionary<Direction, IDictionary<int, Type>> IdToType = 
-            new ReadOnlyDictionary<Direction, IDictionary<int, Type>>( new Dictionary<Direction, IDictionary<int, Type>> {
-                {
-                    Direction.Clientbound, Reverse(TypeToId[Direction.Clientbound])
-                },
-                {
-                    Direction.Serverbound, Reverse(TypeToId[Direction.Serverbound])
-                }
-            });
+            }
+            
+            Register(new PacketS2CJoinGame());
+            Register(new PacketS2CAssignTurn());
+            Register(new PacketS2CBoardUpdate());
+            Register(new PacketS2CGameOver());
+            
+            Register(new PacketC2SHello());
+            Register(new PacketC2SDoTurn());
 
-        public static int GetId(IPacket packet) => TypeToId[packet.GetDirection()][packet.GetType()];
-
-        public static IPacket FromId(int id, Direction direction) {
-            return (IPacket) IdToType[direction][id].GetConstructor(new Type[0])
-                ?.Invoke(new object[0]);
+            IDictionary<Direction, IDictionary<int, Type>> final = new Dictionary<Direction, IDictionary<int, Type>>();
+            
+            final[Direction.Clientbound] = new ReadOnlyDictionary<int, Type>(idToTypeClientbound);
+            final[Direction.Serverbound] = new ReadOnlyDictionary<int, Type>(idToTypeServerbound);
+            
+            IdToType = new ReadOnlyDictionary<Direction, IDictionary<int, Type>>(final);
         }
+        
+        private static readonly IDictionary<Direction, IDictionary<int, Type>> IdToType;
 
-        private static IDictionary<TB, TA> Reverse<TA, TB>(IDictionary<TA, TB> dict) {
-            return dict.ToDictionary(pair => pair.Value, pair => pair.Key);
+        public static BasePacket FromId(int id, Direction direction) {
+            return (BasePacket) IdToType[direction][id].GetConstructor(new Type[0])
+                ?.Invoke(new object[0]);
         }
     }
 }

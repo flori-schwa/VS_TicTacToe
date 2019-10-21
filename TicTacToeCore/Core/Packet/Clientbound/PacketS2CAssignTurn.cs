@@ -1,6 +1,5 @@
 namespace TicTacToe.Core.Packet.Clientbound {
-    [Packet(Direction.Clientbound)]
-    public class PacketS2CAssignTurn : IPacket {
+    public class PacketS2CAssignTurn : BasePacket {
                     
         private int[] _availableFields;
 
@@ -17,7 +16,11 @@ namespace TicTacToe.Core.Packet.Clientbound {
             set => _availableFields = value;
         }
 
-        public void Read(PacketDataReader reader) {
+        public override int PacketId => 0x00;
+
+        public override Direction Direction => Direction.Clientbound;
+
+        public override void Read(PacketDataReader reader) {
             _availableFields = new int[reader.ReadInt()];
 
             for (int i = 0; i < _availableFields.Length; i++) {
@@ -25,7 +28,7 @@ namespace TicTacToe.Core.Packet.Clientbound {
             }
         }
 
-        public int Write(PacketDataWriter writer) {
+        public override int Write(PacketDataWriter writer) {
             int written = writer.Write(_availableFields.Length);
 
             foreach (int availableField in _availableFields) {

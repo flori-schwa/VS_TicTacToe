@@ -24,7 +24,7 @@ namespace TicTacToe.Core.Packet {
 
         public byte[] ReadByteArray(int count) => _reader.ReadBytes(count);
 
-        public T Read<T>() where T : IPacket, new() {
+        public T Read<T>() where T : BasePacket, new() {
             T t = new T();
 
             t.Read(this);

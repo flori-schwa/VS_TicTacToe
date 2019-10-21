@@ -1,11 +1,10 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
-using TicTacToe.Core.Packet;
 
-namespace TicTacToe.Core {
+namespace TicTacToe.Core.Packet {
     public static class SocketUtil {
-        public static void SendPacket(this Socket socket, IPacket packet) {
+        public static void SendPacket(this Socket socket, BasePacket packet) {
             MemoryStream packetDataStream = new MemoryStream();
             PacketDataWriter packetDataWriter = new PacketDataWriter(new BinaryWriter(packetDataStream));
 
@@ -20,19 +19,23 @@ namespace TicTacToe.Core {
             MemoryStream fullPacketData = new MemoryStream(fullPacketBuffer);
             BinaryWriter packetWriter = new BinaryWriter(fullPacketData);
 
-            packetWriter.Write(PacketRegistry.GetId(packet));
+            packetWriter.Write(packet.PacketId);
             packetWriter.Write(packetDataLength);
             packetWriter.Write(packetData, 0, packetDataLength);
 
             socket.Send(fullPacketBuffer);
         }
 
-        public static IPacket ReceivePacket(this Socket socket, Direction direction) {
+        public static BasePacket ReceivePacket(this Socket socket, Direction direction) {
             Span<byte> intBuffer = stackalloc byte[sizeof(int)];
             socket.Receive(intBuffer);
             int packetId = BitConverter.ToInt32(intBuffer);
 
-            IPacket packet = PacketRegistry.FromId(packetId, direction);
+            BasePacket packet = PacketRegistry.FromId(packetId, direction);
+
+            if (packet == null) {
+                throw new Exception($"Packet with id 0x{packetId:x2} not registered!");
+            }
 
             socket.Receive(intBuffer);
             int dataLength = BitConverter.ToInt32(intBuffer);

@@ -16,21 +16,21 @@ namespace TicTacToe.Server {
             _game = game;
         }
 
-        public void SendPacket(IPacket packet) {
+        public void SendPacket(BasePacket packet) {
             new Thread(() => _socket.SendPacket(packet)).Start();
         }
 
-        private IPacket ReceivePacket() => _socket.ReceivePacket(Direction.Serverbound);
+        private BasePacket ReceivePacket() => _socket.ReceivePacket(Direction.Serverbound);
 
         internal void HandleClient() {
             while (_socket.Connected) {
-                IPacket packet = ReceivePacket();
+                BasePacket packet = ReceivePacket();
                     
                 new Thread(() => HandlePacket(packet)).Start();
             }
         }
 
-        private void HandlePacket(IPacket packet) {
+        private void HandlePacket(BasePacket packet) {
             switch (packet) {
                 case PacketC2SHello helloPacket: {
                     HandleHelloPacket(helloPacket);

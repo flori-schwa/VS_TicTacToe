@@ -31,7 +31,7 @@ namespace TicTacToe.Client {
 
             new Thread(() => {
                 while (true) {
-                    IPacket packet = _clientSocket.ReceivePacket(Direction.Clientbound);
+                    BasePacket packet = _clientSocket.ReceivePacket(Direction.Clientbound);
                     
                     new Thread(() => HandlePacket(packet)).Start();
                 }
@@ -63,7 +63,7 @@ namespace TicTacToe.Client {
             return " ";
         }
 
-        private void HandlePacket(IPacket packet) {
+        private void HandlePacket(BasePacket packet) {
             switch (packet) {
                 case PacketS2CJoinGame joinGamePacket: {
                     Console.WriteLine($"You are playing as {joinGamePacket.Type}");
@@ -87,11 +87,11 @@ namespace TicTacToe.Client {
                 }
 
                 case PacketS2CBoardUpdate boardUpdatePacket: {
-                    PlayerType[] board = boardUpdatePacket.Board;
+                    Board board = boardUpdatePacket.Board;
                     
                     for (int y = 0; y < 3; y++) {
                         for (int x = 0; x < 3; x++) {
-                            Console.Write(PlayerTypeToChar(board[y * 3 + x]));
+                            Console.Write(PlayerTypeToChar(board[y, x]));
                         }
 
                         Console.WriteLine();
