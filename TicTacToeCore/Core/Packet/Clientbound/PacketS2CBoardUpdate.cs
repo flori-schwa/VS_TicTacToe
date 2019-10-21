@@ -1,41 +1,30 @@
 using TicTacToe.Core.Game;
+using TicTacToe.Core.Packet.IO;
 
 namespace TicTacToe.Core.Packet.Clientbound {
     public class PacketS2CBoardUpdate : BasePacket {
-
-        private Board _board;
-
         public PacketS2CBoardUpdate(Board board) {
-            _board = board;
+            Board = board;
         }
 
-        public PacketS2CBoardUpdate() {
-            
-        }
+        public PacketS2CBoardUpdate() { }
 
-        public Board Board {
-            get => _board;
-            set => _board = value;
-        }
+        public Board Board { get; set; }
 
         public override int PacketId => 0x02;
-        
+
         public override Direction Direction => Direction.Clientbound;
 
         public override void Read(PacketDataReader reader) {
-            _board = new Board();
+            Board = new Board();
 
-            for (int i = 0; i < 9; i++) {
-                _board[i] = (PlayerType) reader.ReadByte();
-            }
+            for (int i = 0; i < 9; i++) Board[i] = (PlayerType) reader.ReadByte();
         }
 
         public override int Write(PacketDataWriter writer) {
             int writtenBytes = 0;
 
-            for (int i = 0; i < 9; i++) {
-                writtenBytes += writer.Write((byte) _board[i]);
-            }
+            for (int i = 0; i < 9; i++) writtenBytes += writer.Write((byte) Board[i]);
 
             return writtenBytes;
         }

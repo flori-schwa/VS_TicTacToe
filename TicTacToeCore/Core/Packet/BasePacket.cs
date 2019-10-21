@@ -1,3 +1,5 @@
+using TicTacToe.Core.Packet.IO;
+
 namespace TicTacToe.Core.Packet {
     public abstract class BasePacket {
         public abstract int PacketId { get; }

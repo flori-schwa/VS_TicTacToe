@@ -2,11 +2,10 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using TicTacToe.Core.Game;
 
 namespace TicTacToe.Server {
     public class TicTacToeServer {
-        private Game _game = new Game();
+        private readonly Game _game = new Game();
 
         internal TicTacToeServer() {
             IPEndPoint ipEndPoint = new IPEndPoint(IPAddress.Loopback, 1337);
@@ -35,9 +34,7 @@ namespace TicTacToe.Server {
                     clientSocket = serverSocket.Accept();
                 }
                 catch (SocketException e) {
-                    if (e.SocketErrorCode == SocketError.Interrupted) {
-                        continue; // Ignore
-                    }
+                    if (e.SocketErrorCode == SocketError.Interrupted) continue; // Ignore
 
                     Console.WriteLine(e);
                     continue;

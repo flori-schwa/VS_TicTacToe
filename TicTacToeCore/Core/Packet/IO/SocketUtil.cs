@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 
-namespace TicTacToe.Core.Packet {
+namespace TicTacToe.Core.Packet.IO {
     public static class SocketUtil {
         public static void SendPacket(this Socket socket, BasePacket packet) {
             MemoryStream packetDataStream = new MemoryStream();
@@ -33,9 +33,7 @@ namespace TicTacToe.Core.Packet {
 
             BasePacket packet = PacketRegistry.FromId(packetId, direction);
 
-            if (packet == null) {
-                throw new Exception($"Packet with id 0x{packetId:x2} not registered!");
-            }
+            if (packet == null) throw new Exception($"Packet with id 0x{packetId:x2} not registered!");
 
             socket.Receive(intBuffer);
             int dataLength = BitConverter.ToInt32(intBuffer);

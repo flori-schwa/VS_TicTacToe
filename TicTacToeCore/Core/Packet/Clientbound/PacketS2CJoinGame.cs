@@ -1,26 +1,26 @@
 using TicTacToe.Core.Game;
+using TicTacToe.Core.Packet.IO;
 
 namespace TicTacToe.Core.Packet.Clientbound {
     public class PacketS2CJoinGame : BasePacket {
-        private PlayerType _type;
-
         public PacketS2CJoinGame() { }
 
         public PacketS2CJoinGame(PlayerType type) {
-            _type = type;
+            Type = type;
         }
 
-        public PlayerType Type {
-            get => _type;
-            set => _type = value;
-        }
+        public PlayerType Type { get; set; }
 
         public override int PacketId => 0x00;
-        
-        public override Direction Direction => Direction.Clientbound;
-        
-        public override void Read(PacketDataReader reader) => _type = (PlayerType) reader.ReadByte();
 
-        public override int Write(PacketDataWriter writer) => writer.Write((byte) _type);
+        public override Direction Direction => Direction.Clientbound;
+
+        public override void Read(PacketDataReader reader) {
+            Type = (PlayerType) reader.ReadByte();
+        }
+
+        public override int Write(PacketDataWriter writer) {
+            return writer.Write((byte) Type);
+        }
     }
 }

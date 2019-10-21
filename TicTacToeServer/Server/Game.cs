@@ -20,64 +20,54 @@ namespace TicTacToe.Server {
 
             // Diagonals
             new[] {0, 0, 1, 1},
-            new[] {0, 2, 1, -1},
+            new[] {0, 2, 1, -1}
         };
 
         private readonly Board _board = new Board();
-        private Player[] _players = new Player[2];
 
         private Player _currentTurn;
+        private readonly Player[] _players = new Player[2];
 
         public void AssignTurn(Player player) {
             _currentTurn = player;
             List<int> availableFields = new List<int>();
 
-            for (int i = 0; i < _board.Length; i++) {
-                if (_board[i] == PlayerType.None) {
+            for (int i = 0; i < _board.Length; i++)
+                if (_board[i] == PlayerType.None)
                     availableFields.Add(i);
-                }
-            }
 
             player.Connection.SendPacket(new PacketS2CAssignTurn(availableFields.ToArray()));
         }
 
-        public bool IsGameFull() => _players[0] != null && _players[1] != null;
+        public bool IsGameFull() {
+            return _players[0] != null && _players[1] != null;
+        }
 
         public PlayerType GetNextPlayerType() {
-            if (!IsPlayerTypeTaken(PlayerType.X)) {
-                return PlayerType.X;
-            }
+            if (!IsPlayerTypeTaken(PlayerType.X)) return PlayerType.X;
 
-            if (!IsPlayerTypeTaken(PlayerType.O)) {
-                return PlayerType.O;
-            }
+            if (!IsPlayerTypeTaken(PlayerType.O)) return PlayerType.O;
 
-            throw new Exception($"Game is full!");
+            throw new Exception("Game is full!");
         }
 
         public void DoTurn(Player player, PacketC2SDoTurn doTurnPacket) {
-            if (_currentTurn != player) {
-                return; // Ignore
-            }
+            if (_currentTurn != player) return; // Ignore
 
-            if (_board[doTurnPacket.Field] != PlayerType.None) {
-                return; // TODO Handle Illegal Move
-            }
+            if (_board[doTurnPacket.Field] != PlayerType.None) return; // TODO Handle Illegal Move
 
             _board[doTurnPacket.Field] = _currentTurn.PlayerType;
             BroadcastBoard();
-            
-            if (CheckWinner(player)) {
+
+            if (CheckWinner(player))
                 Win(player);
-            }
-            else {
+            else
                 AssignTurn(GetPlayerByType(GetReverseType(player.PlayerType)));
-            }
         }
 
         private void BroadcastBoard() {
             PacketS2CBoardUpdate updatePacket = new PacketS2CBoardUpdate(_board);
-            
+
             _players[0].Connection.SendPacket(updatePacket);
             _players[1].Connection.SendPacket(updatePacket);
         }
@@ -88,21 +78,17 @@ namespace TicTacToe.Server {
 
         public Player RegisterPlayer(ClientConnection connection, string name) {
             for (int i = 0; i < 2; i++) {
-                if (_players[i] != null) {
-                    continue;
-                }
+                if (_players[i] != null) continue;
 
                 Player player = new Player(connection, name, this);
                 player.Connection.SendPacket(new PacketS2CJoinGame(player.PlayerType));
                 _players[i] = player;
 
-                if (IsGameFull()) {
-                    StartGame();
-                }
-                    
+                if (IsGameFull()) StartGame();
+
                 return player;
             }
-            
+
             throw new Exception("Game already full!");
         }
 
@@ -122,14 +108,10 @@ namespace TicTacToe.Server {
         }
 
         private Player GetOtherPlayer(Player player) {
-            if (_players[0] == player) {
-                return _players[1];
-            }
+            if (_players[0] == player) return _players[1];
 
-            if (_players[1] == player) {
-                return _players[0];
-            }
-            
+            if (_players[1] == player) return _players[0];
+
             throw new ArgumentException($"Player {player.Name} is not part of this game!");
         }
 
@@ -142,9 +124,7 @@ namespace TicTacToe.Server {
 
             bool WonLine(int x, int y, int dx, int dy) {
                 for (int i = 0; i < 3; i++) {
-                    if (_board[x, y] != type) {
-                        return false;
-                    }
+                    if (_board[x, y] != type) return false;
 
                     x += dx;
                     y += dy;
@@ -153,18 +133,16 @@ namespace TicTacToe.Server {
                 return true;
             }
 
-            foreach (int[] winCheck in WinChecks) {
-                if (WonLine(winCheck[0], winCheck[1], winCheck[2], winCheck[3])) {
+            foreach (int[] winCheck in WinChecks)
+                if (WonLine(winCheck[0], winCheck[1], winCheck[2], winCheck[3]))
                     return true;
-                }
-            }
 
             return false;
         }
 
         private void Win(Player player) {
             player.Connection.SendPacket(new PacketS2CGameOver(true));
-            
+
             GetOtherPlayer(player).Connection.SendPacket(new PacketS2CGameOver(false));
         }
     }

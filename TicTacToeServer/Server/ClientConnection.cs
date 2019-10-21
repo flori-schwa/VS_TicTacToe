@@ -1,14 +1,13 @@
 using System.Net.Sockets;
 using System.Threading;
-using TicTacToe.Core;
 using TicTacToe.Core.Packet;
-using TicTacToe.Core.Packet.Clientbound;
+using TicTacToe.Core.Packet.IO;
 using TicTacToe.Core.Packet.Serverbound;
 
 namespace TicTacToe.Server {
     public class ClientConnection {
-        private readonly Socket _socket;
         private readonly Game _game;
+        private readonly Socket _socket;
         private Player _player;
 
         public ClientConnection(Socket socket, Game game) {
@@ -20,12 +19,14 @@ namespace TicTacToe.Server {
             new Thread(() => _socket.SendPacket(packet)).Start();
         }
 
-        private BasePacket ReceivePacket() => _socket.ReceivePacket(Direction.Serverbound);
+        private BasePacket ReceivePacket() {
+            return _socket.ReceivePacket(Direction.Serverbound);
+        }
 
         internal void HandleClient() {
             while (_socket.Connected) {
                 BasePacket packet = ReceivePacket();
-                    
+
                 new Thread(() => HandlePacket(packet)).Start();
             }
         }

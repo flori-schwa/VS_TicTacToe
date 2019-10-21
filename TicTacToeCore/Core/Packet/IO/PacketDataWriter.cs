@@ -1,9 +1,9 @@
 using System.IO;
 using System.Text;
 
-namespace TicTacToe.Core.Packet {
+namespace TicTacToe.Core.Packet.IO {
     public class PacketDataWriter {
-        private BinaryWriter _writer;
+        private readonly BinaryWriter _writer;
 
         public PacketDataWriter(BinaryWriter writer) {
             _writer = writer;
@@ -51,8 +51,12 @@ namespace TicTacToe.Core.Packet {
             return Write(stringData.Length) + Write(stringData);
         }
 
-        public int Write<T>(T t) where T : BasePacket => t.Write(this);
+        public int Write<T>(T t) where T : BasePacket {
+            return t.Write(this);
+        }
 
-        public void Flush() => _writer.Flush();
+        public void Flush() {
+            _writer.Flush();
+        }
     }
 }
