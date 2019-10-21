@@ -16,7 +16,7 @@ namespace TicTacToe.Core.Packet.Clientbound {
             set => _availableFields = value;
         }
 
-        public override int PacketId => 0x00;
+        public override int PacketId => 0x01;
 
         public override Direction Direction => Direction.Clientbound;
 
