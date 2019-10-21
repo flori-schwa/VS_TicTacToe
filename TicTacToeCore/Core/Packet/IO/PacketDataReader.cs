@@ -37,7 +37,7 @@ namespace TicTacToe.Core.Packet.IO {
             return Reader.ReadBytes(count);
         }
 
-        public T Read<T>() where T : BasePacket, new() {
+        public T Read<T>() where T : IProtocolReadWrite, new() {
             T t = new T();
 
             t.Read(this);

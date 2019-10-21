@@ -51,7 +51,7 @@ namespace TicTacToe.Core.Packet.IO {
             return Write(stringData.Length) + Write(stringData);
         }
 
-        public int Write<T>(T t) where T : BasePacket {
+        public int Write<T>(T t) where T : IProtocolReadWrite {
             return t.Write(this);
         }
 

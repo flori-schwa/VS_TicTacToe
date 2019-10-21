@@ -18,15 +18,11 @@ namespace TicTacToe.Core.Packet.Clientbound {
         public override void Read(PacketDataReader reader) {
             Board = new Board();
 
-            for (int i = 0; i < 9; i++) Board[i] = (PlayerType) reader.ReadByte();
+            Board.Read(reader);
         }
 
         public override int Write(PacketDataWriter writer) {
-            int writtenBytes = 0;
-
-            for (int i = 0; i < 9; i++) writtenBytes += writer.Write((byte) Board[i]);
-
-            return writtenBytes;
+            return Board.Write(writer);
         }
     }
 }
