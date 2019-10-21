@@ -13,7 +13,8 @@ namespace TicTacToe.Core.Packet {
                         Direction.Clientbound, new Dictionary<Type, int> {
                             {typeof(PacketS2CJoinGame), 0x00},
                             {typeof(PacketS2CAssignTurn), 0x01},
-                            {typeof(PacketS2CGameOver), 0x02}
+                            {typeof(PacketS2CGameOver), 0x02},
+                            {typeof(PacketS2CBoardUpdate), 0x03}
                         }
                     },
 

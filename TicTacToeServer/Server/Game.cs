@@ -23,34 +23,6 @@ namespace TicTacToe.Server {
             new[] {0, 2, 1, -1},
         };
 
-        private class Board {
-            private readonly PlayerType[] _board = {
-                PlayerType.None,
-                PlayerType.None,
-                PlayerType.None,
-
-                PlayerType.None,
-                PlayerType.None,
-                PlayerType.None,
-
-                PlayerType.None,
-                PlayerType.None,
-                PlayerType.None
-            };
-
-            public PlayerType this[int row, int column] {
-                get => _board[row * 3 + column];
-                set => _board[row * 3 + column] = value;
-            }
-
-            public PlayerType this[int index] {
-                get => _board[index];
-                set => _board[index] = value;
-            }
-
-            public int Length => _board.Length;
-        }
-
         private readonly Board _board = new Board();
         private Player[] _players = new Player[2];
 
@@ -93,13 +65,21 @@ namespace TicTacToe.Server {
             }
 
             _board[doTurnPacket.Field] = _currentTurn.PlayerType;
-
+            BroadcastBoard();
+            
             if (CheckWinner(player)) {
                 Win(player);
             }
             else {
                 AssignTurn(GetPlayerByType(GetReverseType(player.PlayerType)));
             }
+        }
+
+        private void BroadcastBoard() {
+            PacketS2CBoardUpdate updatePacket = new PacketS2CBoardUpdate(_board.BoardArray);
+            
+            _players[0].Connection.SendPacket(updatePacket);
+            _players[1].Connection.SendPacket(updatePacket);
         }
 
         private bool IsPlayerTypeTaken(PlayerType type) {

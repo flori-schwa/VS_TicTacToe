@@ -28,7 +28,7 @@ namespace TicTacToe.Core {
         }
 
         public static IPacket ReceivePacket(this Socket socket, Direction direction) {
-            byte[] intBuffer = new byte[4];
+            Span<byte> intBuffer = stackalloc byte[sizeof(int)];
             socket.Receive(intBuffer);
             int packetId = BitConverter.ToInt32(intBuffer);
 
